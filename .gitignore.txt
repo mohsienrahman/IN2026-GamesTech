@@ -1,0 +1,23 @@
+# Build output
+VC/Asteroids/Debug/
+VC/Asteroids/Release/
+VC/Engine/Debug/
+VC/Engine/Release/
+OBJ/
+
+# Visual Studio files
+*.suo
+*.user
+*.v12.suo
+*.aps
+*.ncb
+*.sdf
+*.opensdf
+*.ipch
+.vs/
+
+# Compiled binaries (keep DLLs in BIN/ but ignore .exe)
+*.exe
+*.pdb
+*.idb
+*.ilk
