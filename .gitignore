@@ -1,6 +1,5 @@
 .vs/
 *.suo
-*.user
 *.exe
 VC/Asteroids/Debug/
 VC/Asteroids/Release/
