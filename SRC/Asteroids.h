@@ -39,6 +39,7 @@ public:
 	// Declaration of the IPlayerLister interface //////////////////////////////
 
 	void OnPlayerKilled(int lives_left);
+	void LivesChange(int lives);
 
 	// Declaration of IGameWorldListener interface //////////////////////////////
 
@@ -64,6 +65,7 @@ private:
 
 	uint mLevel;
 	uint mAsteroidCount;
+	uint mExtraLivesPowerup;
 
 	bool mEnteringName;
 	std::string mNameEntry;
@@ -79,6 +81,10 @@ private:
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
+	const static uint DESTROY_BLACKHOLE = 3;
+	const static uint DISABLE_INVULNERABILITY = 4;
+
+	void CreateExtraLives(const uint num_bonuslife);
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;

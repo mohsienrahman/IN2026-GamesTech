@@ -20,9 +20,16 @@ public:
 
 	void OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 	{
-		if (object->GetType() == GameObjectType("Spaceship")) {
+		if (object->GetType() == GameObjectType("Spaceship"))
+		{
 			mLives -= 1;
 			FirePlayerKilled();
+		}
+
+		if (object->GetType() == GameObjectType("BonusLife"))
+		{
+			mLives += 1;
+			LivesGained();
 		}
 	}
 
@@ -37,6 +44,15 @@ public:
 		for (PlayerListenerList::iterator lit = mListeners.begin();
 			lit != mListeners.end(); ++lit) {
 			(*lit)->OnPlayerKilled(mLives);
+		}
+	}
+
+	void LivesGained()
+	{
+		for (PlayerListenerList::iterator lit = mListeners.begin();
+			lit != mListeners.end(); ++lit)
+		{
+			(*lit)->LivesChange(mLives);
 		}
 	}
 

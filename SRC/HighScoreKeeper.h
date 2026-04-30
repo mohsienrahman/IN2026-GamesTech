@@ -4,7 +4,6 @@
 #include <fstream>
 #include <algorithm>
 
-// Holds one entry in the high score table
 struct HighScoreEntry {
     std::string name;
     int score;
@@ -13,7 +12,6 @@ struct HighScoreEntry {
 class HighScoreKeeper
 {
 public:
-    // Load all scores from file, returns them as a vector
     static std::vector<HighScoreEntry> LoadScores(const std::string& filename = "highscores.txt")
     {
         std::vector<HighScoreEntry> scores;
@@ -27,7 +25,6 @@ public:
         return scores;
     }
 
-    // Save a new name+score, sort highest first, keep top 10, write back to file
     static void SaveScore(const std::string& name, int score, const std::string& filename = "highscores.txt")
     {
         auto scores = LoadScores(filename);

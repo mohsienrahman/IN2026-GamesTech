@@ -25,7 +25,6 @@ public:
 		}
 	}
 
-
 	void AddListener(shared_ptr<IScoreListener> listener)
 	{
 		mListeners.push_back(listener);
@@ -33,7 +32,6 @@ public:
 
 	void FireScoreChanged()
 	{
-		// Send message to all listeners
 		for (ScoreListenerList::iterator lit = mListeners.begin(); lit != mListeners.end(); ++lit) {
 			(*lit)->OnScoreChanged(mScore);
 		}

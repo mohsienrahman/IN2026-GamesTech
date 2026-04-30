@@ -12,6 +12,7 @@
 #include "GUILabel.h"
 #include "Explosion.h"
 #include "HighScoreKeeper.h"
+#include "BonusLife.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -23,6 +24,7 @@ Asteroids::Asteroids(int argc, char* argv[])
 	mAsteroidCount = 0;
 	mGameStarted = false;
 	mEnteringName = false;
+	mExtraLivesPowerup = 0;
 }
 
 /** Destructor. */
@@ -60,6 +62,7 @@ void Asteroids::Start()
 	Animation* explosion_anim = AnimationManager::GetInstance().CreateAnimationFromFile("explosion", 64, 1024, 64, 64, "explosion_fs.png");
 	Animation* asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation* spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
+	Animation* extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("Heart_fs", 64, 64, 64, 64, "Heart_fs.png");
 
 	mGameStarted = false;
 
@@ -67,29 +70,25 @@ void Asteroids::Start()
 	mTitleLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mTitleLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 	mTitleLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
-	mGameDisplay->GetContainer()->AddComponent(
-		static_pointer_cast<GUIComponent>(mTitleLabel), GLVector2f(0.5f, 0.7f));
+	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mTitleLabel), GLVector2f(0.5f, 0.7f));
 
 	mStartLabel = make_shared<GUILabel>("Press SPACE key to start");
 	mStartLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mStartLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 	mStartLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
-	mGameDisplay->GetContainer()->AddComponent(
-		static_pointer_cast<GUIComponent>(mStartLabel), GLVector2f(0.5f, 0.5f));
+	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mStartLabel), GLVector2f(0.5f, 0.5f));
 
 	mInstructionsLabel = make_shared<GUILabel>("Press 'I' to see game instructions");
 	mInstructionsLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mInstructionsLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 	mInstructionsLabel->SetColor(GLVector3f(0.0f, 1.0f, 0.0f));
-	mGameDisplay->GetContainer()->AddComponent(
-		static_pointer_cast<GUIComponent>(mInstructionsLabel), GLVector2f(0.5f, 0.4f));
+	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mInstructionsLabel), GLVector2f(0.5f, 0.4f));
 
 	mDifficultyLabel = make_shared<GUILabel>("Press 'D' to change game difficulty");
 	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 	mDifficultyLabel->SetColor(GLVector3f(1.0f, 0.6f, 0.6f));
-	mGameDisplay->GetContainer()->AddComponent(
-		static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
+	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
 
 	// Create a spaceship and add it to the world
 	//mGameWorld->AddObject(CreateSpaceship());
@@ -257,6 +256,10 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 			SetTimer(500, START_NEXT_LEVEL);
 		}
 	}
+	if (object->GetType() == GameObjectType("BonusLife"))
+	{
+		mExtraLivesPowerup++;
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -272,7 +275,13 @@ void Asteroids::OnTimer(int value)
 	if (value == START_NEXT_LEVEL)
 	{
 		mLevel++;
-		int num_asteroids = 10 + 2 * mLevel;
+		int num_asteroids = 1 + mLevel;
+
+		if (mLevel % 3 == 0)
+		{
+			CreateExtraLives(2);
+		}
+
 		CreateAsteroids(num_asteroids);
 	}
 
@@ -327,6 +336,22 @@ void Asteroids::CreateAsteroids(const uint num_asteroids)
 		asteroid->SetSprite(asteroid_sprite);
 		asteroid->SetScale(0.2f);
 		mGameWorld->AddObject(asteroid);
+	}
+}
+
+void Asteroids::CreateExtraLives(const uint num_bonuslife)
+{
+	mExtraLivesPowerup = num_bonuslife;
+	for (uint i = 0; i < num_bonuslife; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("Heart_fs");
+		shared_ptr<Sprite> bonuslife_sprite =
+			make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+		shared_ptr<GameObject> bonuslife = make_shared<BonusLife>();
+		bonuslife->SetBoundingShape(make_shared<BoundingSphere>(bonuslife->GetThisPtr(), 3.0f));
+		bonuslife->SetSprite(bonuslife_sprite);
+		bonuslife->SetScale(0.1f);
+		mGameWorld->AddObject(bonuslife);
 	}
 }
 
@@ -398,6 +423,13 @@ void Asteroids::OnPlayerKilled(int lives_left)
 	{
 		SetTimer(500, SHOW_GAME_OVER);
 	}
+}
+
+void Asteroids::LivesChange(int lives)
+{
+	std::ostringstream msg_stream;
+	msg_stream << "Lives: " << lives;
+	mLivesLabel->SetText(msg_stream.str());
 }
 
 shared_ptr<GameObject> Asteroids::CreateExplosion()
