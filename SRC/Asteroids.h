@@ -9,6 +9,8 @@
 #include "ScoreKeeper.h"
 #include "Player.h"
 #include "IPlayerListener.h"
+#include <vector>
+#include <memory>
 
 class GameObject;
 class Spaceship;
@@ -17,7 +19,7 @@ class GUILabel;
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
 public:
-	Asteroids(int argc, char *argv[]);
+	Asteroids(int argc, char* argv[]);
 	virtual ~Asteroids(void);
 
 	virtual void Start(void);
@@ -63,11 +65,17 @@ private:
 	uint mLevel;
 	uint mAsteroidCount;
 
+	bool mEnteringName;
+	std::string mNameEntry;
+	shared_ptr<GUILabel> mNameEntryLabel;
+	std::vector<shared_ptr<GUILabel>> mHighScoreLabels;
+
+	void ResetSpaceship();
 	shared_ptr<GameObject> CreateSpaceship();
 	void CreateGUI();
 	void CreateAsteroids(const uint num_asteroids);
 	shared_ptr<GameObject> CreateExplosion();
-	
+
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
