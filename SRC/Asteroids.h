@@ -85,6 +85,7 @@ private:
 	const static uint DISABLE_INVULNERABILITY = 4;
 
 	void CreateExtraLives(const uint num_bonuslife);
+	void CreateInvulnerability(const uint num_powerups);
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;

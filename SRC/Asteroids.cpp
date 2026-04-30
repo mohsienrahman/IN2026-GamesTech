@@ -13,6 +13,7 @@
 #include "Explosion.h"
 #include "HighScoreKeeper.h"
 #include "BonusLife.h"
+#include "Invulnerability.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -63,6 +64,7 @@ void Asteroids::Start()
 	Animation* asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation* spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 	Animation* extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("Heart_fs", 64, 64, 64, 64, "Heart_fs.png");
+	Animation* invuln_anim = AnimationManager::GetInstance().CreateAnimationFromFile("invulnerability_fs", 64, 64, 64, 64, "invulnerability_fs.png");
 
 	mGameStarted = false;
 
@@ -260,6 +262,10 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 	{
 		mExtraLivesPowerup++;
 	}
+	if (object->GetType() == GameObjectType("Invulnerability"))
+	{
+		SetTimer(5000, DISABLE_INVULNERABILITY);
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -283,6 +289,11 @@ void Asteroids::OnTimer(int value)
 		}
 
 		CreateAsteroids(num_asteroids);
+	}
+
+	if (value == DISABLE_INVULNERABILITY)
+	{
+		if (mSpaceship) mSpaceship->SetInvulnerable(false);
 	}
 
 	if (value == SHOW_GAME_OVER)
@@ -355,6 +366,21 @@ void Asteroids::CreateExtraLives(const uint num_bonuslife)
 	}
 }
 
+void Asteroids::CreateInvulnerability(const uint num_powerups)
+{
+	for (uint i = 0; i < num_powerups; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("invulnerability_fs");
+		shared_ptr<Sprite> invuln_sprite =
+			make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+		shared_ptr<GameObject> invulnerability = make_shared<Invulnerability>();
+		invulnerability->SetBoundingShape(make_shared<BoundingSphere>(invulnerability->GetThisPtr(), 3.0f));
+		invulnerability->SetSprite(invuln_sprite);
+		invulnerability->SetScale(0.2f);
+		mGameWorld->AddObject(invulnerability);
+	}
+}
+
 void Asteroids::CreateGUI()
 {
 	// Add a (transparent) border around the edge of the game display
@@ -396,9 +422,12 @@ void Asteroids::OnScoreChanged(int score)
 	// Format the score message using an string-based stream
 	std::ostringstream msg_stream;
 	msg_stream << "Score: " << score;
-	// Get the score message as a string
-	std::string score_msg = msg_stream.str();
-	mScoreLabel->SetText(score_msg);
+	mScoreLabel->SetText(msg_stream.str());
+
+	if (score % 80 == 0 && score != 0)
+	{
+		CreateInvulnerability(1);
+	}
 }
 
 void Asteroids::OnPlayerKilled(int lives_left)
