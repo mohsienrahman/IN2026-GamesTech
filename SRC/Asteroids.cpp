@@ -14,6 +14,7 @@
 #include "HighScoreKeeper.h"
 #include "BonusLife.h"
 #include "Invulnerability.h"
+#include "BlackHole.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -65,6 +66,7 @@ void Asteroids::Start()
 	Animation* spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 	Animation* extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("Heart_fs", 64, 64, 64, 64, "Heart_fs.png");
 	Animation* invuln_anim = AnimationManager::GetInstance().CreateAnimationFromFile("invulnerability_fs", 64, 64, 64, 64, "invulnerability_fs.png");
+	Animation* blackhole_anim = AnimationManager::GetInstance().CreateAnimationFromFile("blackhole_fs", 64, 64, 64, 64, "blackhole_fs.png");
 
 	mGameStarted = false;
 
@@ -296,6 +298,15 @@ void Asteroids::OnTimer(int value)
 		if (mSpaceship) mSpaceship->SetInvulnerable(false);
 	}
 
+	if (value == DESTROY_BLACKHOLE)
+	{
+		if (!mBlackHoles.empty())
+		{
+			mGameWorld->FlagForRemoval(mBlackHoles.front());
+			mBlackHoles.erase(mBlackHoles.begin());
+		}
+	}
+
 	if (value == SHOW_GAME_OVER)
 	{
 		mGameOverLabel->SetVisible(true);
@@ -381,6 +392,25 @@ void Asteroids::CreateInvulnerability(const uint num_powerups)
 	}
 }
 
+void Asteroids::CreateBlackHole(const uint num_blackholes)
+{
+	for (uint i = 0; i < num_blackholes; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("blackhole_fs");
+		shared_ptr<Sprite> blackhole_sprite =
+			make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+		shared_ptr<GameObject> blackhole = make_shared<BlackHole>();
+		blackhole->SetBoundingShape(make_shared<BoundingSphere>(blackhole->GetThisPtr(), 2.0f));
+		blackhole->SetSprite(blackhole_sprite);
+		blackhole->SetScale(0.2f);
+		mGameWorld->AddObject(blackhole);
+
+		mBlackHoles.push_back(blackhole);
+
+		SetTimer(5000, DESTROY_BLACKHOLE);
+	}
+}
+
 void Asteroids::CreateGUI()
 {
 	// Add a (transparent) border around the edge of the game display
@@ -427,6 +457,10 @@ void Asteroids::OnScoreChanged(int score)
 	if (score % 80 == 0 && score != 0)
 	{
 		CreateInvulnerability(1);
+	}
+	if (score % 120 == 0 && score != 0)
+	{
+		CreateBlackHole(1);
 	}
 }
 

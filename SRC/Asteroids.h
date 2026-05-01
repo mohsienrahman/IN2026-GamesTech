@@ -86,6 +86,8 @@ private:
 
 	void CreateExtraLives(const uint num_bonuslife);
 	void CreateInvulnerability(const uint num_powerups);
+	void CreateBlackHole(const uint num_blackholes);
+	std::vector<shared_ptr<GameObject>> mBlackHoles;
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;
