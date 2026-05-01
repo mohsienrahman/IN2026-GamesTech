@@ -27,6 +27,10 @@ Asteroids::Asteroids(int argc, char* argv[])
 	mGameStarted = false;
 	mEnteringName = false;
 	mExtraLivesPowerup = 0;
+	mBonusLifeEnabled = true;
+	mInvulnerabilityEnabled = true;
+	mBlackHoleEnabled = true;
+	mShowingDifficulty = false;
 }
 
 /** Destructor. */
@@ -88,11 +92,19 @@ void Asteroids::Start()
 	mInstructionsLabel->SetColor(GLVector3f(0.0f, 1.0f, 0.0f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mInstructionsLabel), GLVector2f(0.5f, 0.4f));
 
-	mDifficultyLabel = make_shared<GUILabel>("Press 'D' to change game difficulty");
+	mDifficultyLabel = make_shared<GUILabel>("Press 'D' difficulty");
 	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 	mDifficultyLabel->SetColor(GLVector3f(1.0f, 0.6f, 0.6f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
+
+	// Keep D label as-is: "Press 'D' to change game difficulty"
+	// Add a separate label for H
+	mHighScoreLabel = make_shared<GUILabel>("Press 'H' to view high scores");
+	mHighScoreLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mHighScoreLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	mHighScoreLabel->SetColor(GLVector3f(1.0f, 1.0f, 0.0f));
+	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mHighScoreLabel), GLVector2f(0.5f, 0.2f));
 
 	// Create a spaceship and add it to the world
 	//mGameWorld->AddObject(CreateSpaceship());
@@ -178,17 +190,22 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 
 	if (!mGameStarted && key == ' ')
 	{
+		// Clean up menu high score labels if H was used
+		for (auto& label : mMenuHighScoreLabels)
+			mGameDisplay->GetContainer()->RemoveComponent(label);
+		mMenuHighScoreLabels.clear();
+
 		mTitleLabel->SetVisible(false);
 		mStartLabel->SetVisible(false);
 		mInstructionsLabel->SetVisible(false);
 		mDifficultyLabel->SetVisible(false);
+		mHighScoreLabel->SetVisible(false);   // ADD THIS
 
 		mScoreLabel->SetVisible(true);
 		mLivesLabel->SetVisible(true);
 
 		mGameWorld->AddObject(CreateSpaceship());
 		CreateAsteroids(1);
-
 		mGameStarted = true;
 	}
 	else if (!mGameStarted && (key == 'i' || key == 'I'))
@@ -200,10 +217,80 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	}
 	else if (!mGameStarted && (key == 'd' || key == 'D'))
 	{
+		mShowingDifficulty = true;
+		mTitleLabel->SetText("POWERUP SETTINGS:");
+		mStartLabel->SetText(std::string("1: Extra Lives       [") + (mBonusLifeEnabled ? "ON]" : "OFF]"));
+		mInstructionsLabel->SetText(std::string("2: Gold Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
+		mDifficultyLabel->SetVisible(true);
+		mDifficultyLabel->SetText(std::string("3: Black Holes       [") + (mBlackHoleEnabled ? "ON]" : "OFF]"));
+	}
+	else if (!mGameStarted && mShowingDifficulty && key == '1')
+	{
+		mBonusLifeEnabled = !mBonusLifeEnabled;
+		mStartLabel->SetText(std::string("1: Extra Lives       [") + (mBonusLifeEnabled ? "ON]" : "OFF]"));
+	}
+	else if (!mGameStarted && mShowingDifficulty && key == '2')
+	{
+		mInvulnerabilityEnabled = !mInvulnerabilityEnabled;
+		mInstructionsLabel->SetText(std::string("2: Gold Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
+	}
+	else if (!mGameStarted && mShowingDifficulty && key == '3')
+	{
+		mBlackHoleEnabled = !mBlackHoleEnabled;
+		mDifficultyLabel->SetText(std::string("3: Black Holes       [") + (mBlackHoleEnabled ? "ON]" : "OFF]"));
+	}
+	else if (!mGameStarted && (key == 'h' || key == 'H'))
+	{
+		mShowingDifficulty = false;
+
+		// Clear any previously shown menu high score labels
+		for (auto& label : mMenuHighScoreLabels)
+			mGameDisplay->GetContainer()->RemoveComponent(label);
+		mMenuHighScoreLabels.clear();
+
+		auto topScores = HighScoreKeeper::LoadScores();
+
+		mTitleLabel->SetText("HIGH SCORES:");
+		mStartLabel->SetVisible(false);
+		mInstructionsLabel->SetVisible(false);
 		mDifficultyLabel->SetVisible(false);
-		mTitleLabel->SetText("DIFFICULTY");
-		mStartLabel->SetText("More options coming soon...");
-		mInstructionsLabel->SetText("Press SPACE to start game");
+		mHighScoreLabel->SetVisible(false);
+
+		if (topScores.empty())
+		{
+			auto label = make_shared<GUILabel>("No scores yet - play a game!");
+			label->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+			label->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+			mGameDisplay->GetContainer()->AddComponent(
+				static_pointer_cast<GUIComponent>(label), GLVector2f(0.5f, 0.5f));
+			mMenuHighScoreLabels.push_back(label);
+		}
+		else
+		{
+			for (int i = 0; i < (int)topScores.size() && i < 5; i++)
+			{
+				std::string text = std::to_string(i + 1) + ".  "
+					+ topScores[i].name + "  -  "
+					+ std::to_string(topScores[i].score);
+				auto label = make_shared<GUILabel>(text);
+				label->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+				label->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+				label->SetColor(GLVector3f(1.0f, 1.0f, 0.0f));
+				mGameDisplay->GetContainer()->AddComponent(
+					static_pointer_cast<GUIComponent>(label),
+					GLVector2f(0.5f, 0.58f - i * 0.08f));
+				mMenuHighScoreLabels.push_back(label);
+			}
+		}
+
+		// Back hint at the bottom
+		auto backLabel = make_shared<GUILabel>("Press SPACE to play");
+		backLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+		backLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+		backLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
+		mGameDisplay->GetContainer()->AddComponent(
+			static_pointer_cast<GUIComponent>(backLabel), GLVector2f(0.5f, 0.18f));
+		mMenuHighScoreLabels.push_back(backLabel);
 	}
 	else if (mGameStarted && key == ' ')
 	{
@@ -285,7 +372,7 @@ void Asteroids::OnTimer(int value)
 		mLevel++;
 		int num_asteroids = 1 + mLevel;
 
-		if (mLevel % 3 == 0)
+		if (mLevel % 3 == 0 && mBonusLifeEnabled)
 		{
 			CreateExtraLives(2);
 		}
@@ -454,11 +541,11 @@ void Asteroids::OnScoreChanged(int score)
 	msg_stream << "Score: " << score;
 	mScoreLabel->SetText(msg_stream.str());
 
-	if (score % 80 == 0 && score != 0)
+	if (score % 80 == 0 && score != 0 && mInvulnerabilityEnabled)
 	{
 		CreateInvulnerability(1);
 	}
-	if (score % 120 == 0 && score != 0)
+	if (score % 120 == 0 && score != 0 && mBlackHoleEnabled)
 	{
 		CreateBlackHole(1);
 	}

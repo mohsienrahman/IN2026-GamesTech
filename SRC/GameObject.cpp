@@ -6,41 +6,41 @@ bool GameObject::mRenderDebug = false;
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
 /** Default constructor. */
-GameObject::GameObject(char const * const type_name)
+GameObject::GameObject(char const* const type_name)
 	: mType(type_name),
-	  mWorld(NULL),
-	  mPosition(0,0,0),
-	  mVelocity(0,0,0),
-	  mAcceleration(0,0,0),
-	  mAngle(0),
-	  mRotation(0),
-	  mScale(1)
+	mWorld(NULL),
+	mPosition(0, 0, 0),
+	mVelocity(0, 0, 0),
+	mAcceleration(0, 0, 0),
+	mAngle(0),
+	mRotation(0),
+	mScale(1)
 {
 }
 
 /** Construct game object with given position, velocity, acceleration, angle and rotation. */
-GameObject::GameObject(char const * const type_name, GLVector3f p, GLVector3f v, GLVector3f a, GLfloat h, GLfloat r)
+GameObject::GameObject(char const* const type_name, GLVector3f p, GLVector3f v, GLVector3f a, GLfloat h, GLfloat r)
 	: mType(type_name),
-	  mWorld(NULL),
-	  mPosition(p),
-	  mVelocity(v),
-	  mAcceleration(a),
-	  mAngle(h),
-	  mRotation(r),
-	  mScale(1)
+	mWorld(NULL),
+	mPosition(p),
+	mVelocity(v),
+	mAcceleration(a),
+	mAngle(h),
+	mRotation(r),
+	mScale(1)
 {
 }
 
 /** Copy constructor. */
 GameObject::GameObject(const GameObject& o)
 	: mType(o.mType.GetTypeName()),
-	  mWorld(o.mWorld),
-	  mPosition(o.mPosition),
-	  mVelocity(o.mVelocity),
-	  mAcceleration(o.mAcceleration),
-	  mAngle(o.mAngle),
-	  mRotation(o.mRotation),
-	  mScale(o.mScale)
+	mWorld(o.mWorld),
+	mPosition(o.mPosition),
+	mVelocity(o.mVelocity),
+	mAcceleration(o.mAcceleration),
+	mAngle(o.mAngle),
+	mRotation(o.mRotation),
+	mScale(o.mScale)
 {
 }
 
@@ -54,9 +54,9 @@ GameObject::~GameObject(void)
 /** Reset this game object back to the center of the game world. */
 void GameObject::Reset()
 {
-	SetPosition(GLVector3f(0,0,0));
-	SetVelocity(GLVector3f(0,0,0));
-	SetAcceleration(GLVector3f(0,0,0));
+	SetPosition(GLVector3f(0, 0, 0));
+	SetVelocity(GLVector3f(0, 0, 0));
+	SetAcceleration(GLVector3f(0, 0, 0));
 	SetAngle(0);
 	SetRotation(0);
 }
@@ -86,7 +86,7 @@ void GameObject::PreRender(void)
 	// Translate drawing position to ship's position
 	glTranslatef(mPosition.x, mPosition.y, mPosition.z);
 	// Rotate drawing around Z-axis to ship's angle
-	glRotatef(mAngle,0,0,1);
+	glRotatef(mAngle, 0, 0, 1);
 	// Scale drawing to scale
 	glScalef(mScale, mScale, mScale);
 }

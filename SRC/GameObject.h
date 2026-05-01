@@ -12,8 +12,8 @@ class BoundingShape;
 class GameObject : public enable_shared_from_this<GameObject>
 {
 public:
-	GameObject(char const * const type_name);
-	GameObject(char const * const type_name, GLVector3f p, GLVector3f v, GLVector3f a, GLfloat h, GLfloat r);
+	GameObject(char const* const type_name);
+	GameObject(char const* const type_name, GLVector3f p, GLVector3f v, GLVector3f a, GLfloat h, GLfloat r);
 	GameObject(const GameObject& o);
 	virtual ~GameObject(void);
 
@@ -23,13 +23,13 @@ public:
 	virtual void PreRender(void);
 	virtual void Render(void);
 	virtual void PostRender(void);
-	
+
 	virtual bool CollisionTest(shared_ptr<GameObject> o) { return false; }
 	virtual void OnCollision(const GameObjectList& objects) {}
 
 	const GameObjectType& GetType() const { return mType; }
 
-	void SetWorld(GameWorld *w) { mWorld = w; }
+	void SetWorld(GameWorld* w) { mWorld = w; }
 	GameWorld* GetWorld() { return mWorld; }
 
 	void SetAngle(GLfloat a) { mAngle = a; }
@@ -37,7 +37,7 @@ public:
 	void SetPosition(GLVector3f p) { mPosition = p; }
 	void SetVelocity(GLVector3f v) { mVelocity = v; }
 	void SetAcceleration(GLVector3f a) { mAcceleration = a; }
-	
+
 	void AddAngle(GLfloat a) { mAngle += a; if (mAngle < 0) mAngle += 360; if (mAngle > 360) mAngle -= 360; }
 	void AddRotation(GLfloat r) { mRotation += r; }
 	void AddPosition(GLVector3f p) { mPosition += p; }

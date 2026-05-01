@@ -2,7 +2,6 @@
 #include "GameUtil.h"
 #include "BlackHole.h"
 #include "BoundingShape.h"
-#include "Asteroid.h"
 
 BlackHole::BlackHole(void) : GameObject("BlackHole")
 {

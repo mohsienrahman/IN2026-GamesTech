@@ -60,6 +60,7 @@ private:
 	shared_ptr<GUILabel> mStartLabel;
 	shared_ptr<GUILabel> mInstructionsLabel;
 	shared_ptr<GUILabel> mDifficultyLabel;
+	shared_ptr<GUILabel> mHighScoreLabel;
 
 	bool mGameStarted;
 
@@ -88,7 +89,12 @@ private:
 	void CreateInvulnerability(const uint num_powerups);
 	void CreateBlackHole(const uint num_blackholes);
 	std::vector<shared_ptr<GameObject>> mBlackHoles;
+	std::vector<shared_ptr<GUILabel>> mMenuHighScoreLabels;
+	bool mBonusLifeEnabled;
+	bool mInvulnerabilityEnabled;
+	bool mBlackHoleEnabled;
 
+	bool mShowingDifficulty;
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;
 };
