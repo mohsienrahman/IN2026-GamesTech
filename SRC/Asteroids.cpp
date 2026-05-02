@@ -83,23 +83,21 @@ void Asteroids::Start()
 	mStartLabel = make_shared<GUILabel>("Press SPACE key to start");
 	mStartLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mStartLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
-	mStartLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
+	mStartLabel->SetColor(GLVector3f(0.0f, 0.5f, 1.0f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mStartLabel), GLVector2f(0.5f, 0.5f));
 
 	mInstructionsLabel = make_shared<GUILabel>("Press 'I' to see game instructions");
 	mInstructionsLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mInstructionsLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
-	mInstructionsLabel->SetColor(GLVector3f(0.0f, 1.0f, 0.0f));
+	mInstructionsLabel->SetColor(GLVector3f(0.1f, 0.8f, 0.2f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mInstructionsLabel), GLVector2f(0.5f, 0.4f));
 
 	mDifficultyLabel = make_shared<GUILabel>("Press 'D' difficulty");
 	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
-	mDifficultyLabel->SetColor(GLVector3f(1.0f, 0.6f, 0.6f));
+	mDifficultyLabel->SetColor(GLVector3f(0.9f, 0.1f, 0.1f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
 
-	// Keep D label as-is: "Press 'D' to change game difficulty"
-	// Add a separate label for H
 	mHighScoreLabel = make_shared<GUILabel>("Press 'H' to view high scores");
 	mHighScoreLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mHighScoreLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
@@ -190,7 +188,6 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 
 	if (!mGameStarted && key == ' ')
 	{
-		// Clean up menu high score labels if H was used
 		for (auto& label : mMenuHighScoreLabels)
 			mGameDisplay->GetContainer()->RemoveComponent(label);
 		mMenuHighScoreLabels.clear();
@@ -199,7 +196,7 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 		mStartLabel->SetVisible(false);
 		mInstructionsLabel->SetVisible(false);
 		mDifficultyLabel->SetVisible(false);
-		mHighScoreLabel->SetVisible(false);   // ADD THIS
+		mHighScoreLabel->SetVisible(false);
 
 		mScoreLabel->SetVisible(true);
 		mLivesLabel->SetVisible(true);
@@ -211,6 +208,7 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	else if (!mGameStarted && (key == 'i' || key == 'I'))
 	{
 		mDifficultyLabel->SetVisible(false);
+		mHighScoreLabel->SetVisible(false);
 		mTitleLabel->SetText("GAMEPLAY INSTRUCTIONS:");
 		mStartLabel->SetText(" Arrow keys to move, SPACE to shoot");
 		mInstructionsLabel->SetText("Press SPACE to start game");
@@ -218,9 +216,10 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	else if (!mGameStarted && (key == 'd' || key == 'D'))
 	{
 		mShowingDifficulty = true;
-		mTitleLabel->SetText("POWERUP SETTINGS:");
+		mHighScoreLabel->SetVisible(false);
+		mTitleLabel->SetText("DIFFICULTY: POWERUP SETTINGS");
 		mStartLabel->SetText(std::string("1: Extra Lives       [") + (mBonusLifeEnabled ? "ON]" : "OFF]"));
-		mInstructionsLabel->SetText(std::string("2: Gold Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
+		mInstructionsLabel->SetText(std::string("2: Blue Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
 		mDifficultyLabel->SetVisible(true);
 		mDifficultyLabel->SetText(std::string("3: Black Holes       [") + (mBlackHoleEnabled ? "ON]" : "OFF]"));
 	}
@@ -232,7 +231,7 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	else if (!mGameStarted && mShowingDifficulty && key == '2')
 	{
 		mInvulnerabilityEnabled = !mInvulnerabilityEnabled;
-		mInstructionsLabel->SetText(std::string("2: Gold Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
+		mInstructionsLabel->SetText(std::string("2: Blue Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
 	}
 	else if (!mGameStarted && mShowingDifficulty && key == '3')
 	{
@@ -243,7 +242,6 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	{
 		mShowingDifficulty = false;
 
-		// Clear any previously shown menu high score labels
 		for (auto& label : mMenuHighScoreLabels)
 			mGameDisplay->GetContainer()->RemoveComponent(label);
 		mMenuHighScoreLabels.clear();
@@ -283,7 +281,6 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 			}
 		}
 
-		// Back hint at the bottom
 		auto backLabel = make_shared<GUILabel>("Press SPACE to play");
 		backLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 		backLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
