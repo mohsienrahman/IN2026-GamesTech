@@ -299,6 +299,7 @@ void Asteroids::OnKeyReleased(uchar key, int x, int y) {}
 
 void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 {
+	if (!mGameStarted) return;
 	switch (key)
 	{
 		// If up arrow key is pressed start applying forward thrust
@@ -314,6 +315,7 @@ void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 
 void Asteroids::OnSpecialKeyReleased(int key, int x, int y)
 {
+	if (!mGameStarted) return;
 	switch (key)
 	{
 		// If up arrow key is released stop applying forward thrust

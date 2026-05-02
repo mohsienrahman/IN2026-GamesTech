@@ -1,6 +1,5 @@
 ﻿cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
   MovementController.cpp
   GameWorld.cpp
-  GameObject.cpp
   Generating Code...
   Engine.vcxproj -> C:\Users\User\Documents\GitHub\IN2026-GamesTech\lib\Engine.lib
