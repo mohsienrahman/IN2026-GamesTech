@@ -6,11 +6,16 @@
 class Asteroid : public GameObject
 {
 public:
-	Asteroid(void);
-	~Asteroid(void);
+    Asteroid(void);
+    ~Asteroid(void);
 
-	bool CollisionTest(shared_ptr<GameObject> o);
-	void OnCollision(const GameObjectList& objects);
+    bool CollisionTest(shared_ptr<GameObject> o);
+    void OnCollision(const GameObjectList& objects);
+
+    bool WasDestroyedByBullet() const { return mDestroyedByBullet; }
+
+private:
+    bool mDestroyedByBullet;
 };
 
 #endif

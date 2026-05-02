@@ -3,7 +3,7 @@
 #include "Asteroid.h"
 #include "BoundingShape.h"
 
-Asteroid::Asteroid(void) : GameObject("Asteroid")
+Asteroid::Asteroid(void) : GameObject("Asteroid"), mDestroyedByBullet(false)
 {
 	mAngle = rand() % 360;
 	mRotation = 0; // rand() % 90;
@@ -30,5 +30,13 @@ bool Asteroid::CollisionTest(shared_ptr<GameObject> o)
 
 void Asteroid::OnCollision(const GameObjectList& objects)
 {
+	for (GameObjectList::const_iterator it = objects.begin();
+		it != objects.end(); ++it)
+	{
+		if ((*it)->GetType() == GameObjectType("Bullet"))
+		{
+			mDestroyedByBullet = true;
+		}
+	}
 	mWorld->FlagForRemoval(GetThisPtr());
 }

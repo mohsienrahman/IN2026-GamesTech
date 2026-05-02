@@ -216,12 +216,12 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 	else if (!mGameStarted && (key == 'd' || key == 'D'))
 	{
 		mShowingDifficulty = true;
-		mHighScoreLabel->SetVisible(false);
 		mTitleLabel->SetText("DIFFICULTY: POWERUP SETTINGS");
 		mStartLabel->SetText(std::string("1: Extra Lives       [") + (mBonusLifeEnabled ? "ON]" : "OFF]"));
 		mInstructionsLabel->SetText(std::string("2: Blue Shield       [") + (mInvulnerabilityEnabled ? "ON]" : "OFF]"));
 		mDifficultyLabel->SetVisible(true);
 		mDifficultyLabel->SetText(std::string("3: Black Holes       [") + (mBlackHoleEnabled ? "ON]" : "OFF]"));
+		mHighScoreLabel->SetText("Click 1,2 or 3 to toggle, SPACE to start");
 	}
 	else if (!mGameStarted && mShowingDifficulty && key == '1')
 	{
@@ -544,7 +544,7 @@ void Asteroids::OnScoreChanged(int score)
 	{
 		CreateInvulnerability(1);
 	}
-	if (score % 120 == 0 && score != 0 && mBlackHoleEnabled)
+	if (score % 80 == 0 && score != 0 && mBlackHoleEnabled)
 	{
 		CreateBlackHole(1);
 	}
